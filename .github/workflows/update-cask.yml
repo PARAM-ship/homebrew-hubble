@@ -17,8 +17,6 @@ jobs:
 
       - name: Find latest macOS arm64 release
         id: release
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           release_json="$(curl --fail --silent --show-error \
@@ -33,11 +31,8 @@ jobs:
           fi
           tag="$(jq -r '.tag_name' <<<"$release_json")"
           version="${tag#desktop-v}"
-          asset_name="${asset_url##*/}"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "asset_url=$asset_url" >> "$GITHUB_OUTPUT"
-          echo "asset_name=$asset_name" >> "$GITHUB_OUTPUT"
 
       - name: Download and hash DMG
         id: digest
@@ -53,22 +48,17 @@ jobs:
         env:
           VERSION: ${{ steps.release.outputs.version }}
           SHA256: ${{ steps.digest.outputs.sha256 }}
-          ASSET_NAME: ${{ steps.release.outputs.asset_name }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           import os
+          import re
 
           path = Path("Casks/hubble-md.rb")
           text = path.read_text()
-          version = os.environ["VERSION"]
-          sha256 = os.environ["SHA256"]
-          asset_name = os.environ["ASSET_NAME"]
-          import re
-          text = re.sub(r'version "[^"]+"', f'version "{version}"', text, count=1)
-          text = re.sub(r'sha256 "[^"]+"', f'sha256 "{sha256}"', text, count=1)
-          text = re.sub(r'Hubble-#\{version\}-arm64\.dmg', asset_name, text, count=1)
+          text = re.sub(r'version "[^"]+"', f'version "{os.environ["VERSION"]}"', text, count=1)
+          text = re.sub(r'sha256 "[^"]+"', f'sha256 "{os.environ["SHA256"]}"', text, count=1)
           path.write_text(text)
           PY
 
