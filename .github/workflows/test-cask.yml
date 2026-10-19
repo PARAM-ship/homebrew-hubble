@@ -20,14 +20,18 @@ jobs:
           brew --version
           uname -m
 
+      - name: Tap repository
+        run: |
+          mkdir -p "$(brew --repo)/Library/Taps/param-ship"
+          ln -s "$GITHUB_WORKSPACE" "$(brew --repo)/Library/Taps/param-ship/homebrew-hubble"
+
       - name: Audit Cask Syntax
         run: |
-          brew audit --cask --strict Casks/hubble-md.rb
+          brew audit --cask --strict param-ship/hubble/hubble-md
 
       - name: Install Cask
         run: |
-          brew install --cask --verbose Casks/hubble-md.rb
-
+          brew install --cask --verbose param-ship/hubble/hubble-md
       - name: Verify Application Bundle
         run: |
           ls -ld /Applications/Hubble.app
