@@ -1,0 +1,38 @@
+name: Test Cask
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-cask:
+    name: Test Homebrew Cask on macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@v4
+
+      - name: Homebrew Version & Environment
+        run: |
+          brew --version
+          uname -m
+
+      - name: Audit Cask Syntax
+        run: |
+          brew audit --cask --strict Casks/hubble-md.rb
+
+      - name: Install Cask
+        run: |
+          brew install --cask --verbose Casks/hubble-md.rb
+
+      - name: Verify Application Bundle
+        run: |
+          ls -ld /Applications/Hubble.app
+          codesign -dv /Applications/Hubble.app || true
+
+      - name: Test Uninstall & Zap
+        run: |
+          brew uninstall --cask --zap hubble-md
