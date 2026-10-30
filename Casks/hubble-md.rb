@@ -1,6 +1,6 @@
 cask "hubble-md" do
-  version "0.3.1"
-  sha256 "138f7536d48e543b2990f5c5115cfa7b2d146d9ff95851c1b4d6507d0ebc268d"
+  version "0.3.2"
+  sha256 "82604163e11619ba5bd9dc56c346ab5df67f64d3a9b10e1e20cb7906d96b5fea"
 
   url "https://github.com/bholmesdev/hubble.md/releases/download/desktop-v#{version}/Hubble-#{version}-arm64.dmg"
   name "Hubble"
